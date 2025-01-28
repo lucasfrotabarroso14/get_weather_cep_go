@@ -1,0 +1,9 @@
+### Teste de Criação de Usuário
+POST http://localhost:8084/busca
+Content-Type: application/json
+
+{
+
+  "cep": "60135280"
+
+}
