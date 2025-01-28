@@ -58,4 +58,3 @@ func getWeatherHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(output)
 
 }
-http://api.weatherapi.com/v1
