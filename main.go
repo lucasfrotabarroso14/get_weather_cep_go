@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"math"
 	"net/http"
+	"regexp"
 )
 
 type Input struct {
@@ -25,9 +26,9 @@ type ApiWeatherResponse struct {
 	} `json:"current"`
 }
 type GetWeatherResponse struct {
-	Celsius    float64 `json:"celsius"`
-	Fahrenheit float64 `json:"fahrenheit"`
-	Kelvin     float64 `json:"kelvin"`
+	Celsius    float64 `json:"temp_C"`
+	Fahrenheit float64 `json:"temp_F"`
+	Kelvin     float64 `json:"temp_K"`
 }
 
 func main() {
@@ -36,7 +37,7 @@ func main() {
 
 	mux.HandleFunc("/busca", getWeatherHandler)
 
-	http.ListenAndServe(":8084", mux)
+	http.ListenAndServe(":8080", mux)
 
 }
 
@@ -49,6 +50,10 @@ func getWeatherHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	//var cep string
+	if !isValidCep(inputDTO.Cep) {
+		http.Error(w, "Invalid zipcode", http.StatusUnprocessableEntity)
+		return
+	}
 
 	location, err := getLocation(inputDTO.Cep)
 	if err != nil {
@@ -57,12 +62,17 @@ func getWeatherHandler(w http.ResponseWriter, r *http.Request) {
 
 	celsiuTemp, err := getCurrentCelsiusTemp(location)
 	if err != nil {
+		if err.Error() == "can not fint zipcode" {
+			http.Error(w, err.Error(), http.StatusNotFound)
+		}
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
+	tempFahrenheit := celsiuTemp*1.8 + 32
+	tempKelvin := celsiuTemp + 273
 	output := GetWeatherResponse{
-		roundToTwo(),
-		celsiuTemp*1.8 + 32,
-		celsiuTemp + 273,
+		roundToTwo(celsiuTemp),
+		roundToTwo(tempFahrenheit),
+		roundToTwo(tempKelvin),
 	}
 
 	w.Header().Set("Content-type", "application/json")
@@ -82,7 +92,8 @@ func getCurrentCelsiusTemp(location string) (float64, error) {
 
 	resp, err := http.Get(url_get_weather)
 	if err != nil {
-		return 0, err
+
+		return http.StatusNotFound, errors.New("can not find zipcode")
 	}
 	defer resp.Body.Close()
 	var apiWeatherResponse ApiWeatherResponse
@@ -108,4 +119,9 @@ func getLocation(cep string) (string, error) {
 		return "", errors.New("Error getting location")
 	}
 	return output.Localidade, nil
+}
+
+func isValidCep(cep string) bool {
+	rgx := regexp.MustCompile(`^\d{8}$`)
+	return rgx.MatchString(cep)
 }

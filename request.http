@@ -4,6 +4,15 @@ Content-Type: application/json
 
 {
 
-  "cep": "60135280"
+  "cep": "60135203"
+
+}
+### Teste de Criação de Usuário Google Cloud run
+POST https://weather-api-404678510224.southamerica-east1.run.app/busca
+Content-Type: application/json
+
+{
+
+  "cep": "60135203"
 
 }

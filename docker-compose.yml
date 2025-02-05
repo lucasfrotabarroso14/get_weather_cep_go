@@ -1,0 +1,8 @@
+version: "3.8"
+
+services:
+  weather-api:
+    build: .
+    ports:
+      - "8090:8084"
+    restart: always
