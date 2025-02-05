@@ -38,7 +38,7 @@ func TestGetLocation(t *testing.T) {
 }
 
 func TestGetCurrentCelsiusTemp(t *testing.T) {
-	location := "Fortaleza"
+	location := "Sao Paulo"
 	temp, err := getCurrentCelsiusTemp(location)
 	if err != nil {
 		t.Errorf("Error fetching temperature: %v", err)

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"math"
 	"net/http"
+	"net/url"
 	"regexp"
 )
 
@@ -87,8 +88,9 @@ func roundToTwo(value float64) float64 {
 
 func getCurrentCelsiusTemp(location string) (float64, error) {
 	apiKey := "f875c284c1114aec9c5220427250402"
+	encodedLocation := url.QueryEscape(location)
 
-	url_get_weather := fmt.Sprintf("http://api.weatherapi.com/v1/current.json?key=%s&q=%s&aqi=no", apiKey, location)
+	url_get_weather := fmt.Sprintf("http://api.weatherapi.com/v1/current.json?key=%s&q=%s&aqi=no", apiKey, encodedLocation)
 
 	resp, err := http.Get(url_get_weather)
 	if err != nil {
